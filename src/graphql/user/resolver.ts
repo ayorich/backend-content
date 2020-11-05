@@ -24,8 +24,6 @@ export class UserResolver {
 	@Mutation(() => User)
 	async registerUser(@Arg('input') input: UserProfileInput): Promise<User> {
 		const { email, phoneNumber, lastName, firstName, uid } = input;
-		const balance: number = 0
-		// const objUid = mongoose.Types.ObjectId(uid);
 		try {
 
 			const userCreated = await UserModel.create({
@@ -35,16 +33,14 @@ export class UserResolver {
 				phoneNumber,
 				uid
 			});
-			const userId = userCreated.id
-			await WalletModel.create({
-				userId, balance
-			});
-
 
 			await firebase.admin
 				.auth()
 				.setCustomUserClaims(uid, { role: userRole.USER });
 
+			await WalletModel.create({
+				userId: userCreated.id
+			});
 
 
 			return userCreated;

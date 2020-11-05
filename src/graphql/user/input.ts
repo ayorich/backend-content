@@ -26,10 +26,6 @@ export class UserProfileInput implements Partial<User> {
 	@Field()
 	phoneNumber: string;
 
-	@Field((_type) => userRole, { nullable: true })
-	role?: userRole;
-
-
 }
 
 @InputType()

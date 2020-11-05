@@ -4,10 +4,6 @@ import { ObjectId } from 'mongodb';
 
 @InputType()
 export class WalletInput implements Partial<Wallet> {
-
-    @Field()
-    balance: number;
-
     @Field(() => String)
     userId: ObjectId;
 

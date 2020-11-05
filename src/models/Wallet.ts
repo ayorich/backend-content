@@ -12,9 +12,9 @@ export class Wallet {
     @Field(() => ID)
     id: string;
 
-    @Field()
-    @Property(() => Int)
-    balance: number;
+    @Field(() => Int)
+    @Property({ default: 0 })
+    balance?: number;
 
     @Field(() => User)
     @Property({ ref: User })
@@ -23,3 +23,5 @@ export class Wallet {
 export const WalletModel = getModelForClass(Wallet, {
     schemaOptions: { timestamps: true },
 });
+
+

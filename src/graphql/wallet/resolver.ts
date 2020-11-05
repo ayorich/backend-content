@@ -14,18 +14,15 @@ export class WalletResolver {
 
     @Mutation(() => Wallet)
     async createWallet(@Arg('data') data: WalletInput): Promise<Wallet> {
-        const { userId, balance } = data;
+        const { userId } = data;
         try {
 
             const walletCreated = await WalletModel.create({
-                userId, balance
+                userId
             });
 
-            if (walletCreated) {
-                return walletCreated;
-            }
+            return walletCreated;
 
-            throw new Error('Wallet not created');
         } catch (error) {
             throw new Error(error);
         }

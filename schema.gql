@@ -91,7 +91,7 @@ type Query {
   returnSingleEvent(id: String!): Event!
   returnSingleUser(uid: String!): User!
   returnUserWallet(userId: String!): Wallet!
-  returnVotesPerContestantForAnEvent(contestantId: String!, eventId: String!): [Vote!]!
+  returnVotesPerContestantForAnEventDeprecated(contestantId: String!, eventId: String!): [Vote!]!
 }
 
 input RoleInput {
@@ -115,7 +115,6 @@ input UserProfileInput {
   firstName: String!
   lastName: String!
   phoneNumber: String!
-  role: userRole
   uid: String!
 }
 
@@ -131,7 +130,7 @@ type Vote {
   eventId: Event!
   id: ID!
   userId: User!
-  vote: Float!
+  vote: Int!
 }
 
 input VoteInput {
@@ -143,12 +142,11 @@ input VoteInput {
 
 """The Wallet model"""
 type Wallet {
-  balance: Float!
+  balance: Int!
   id: ID!
   userId: User!
 }
 
 input WalletInput {
-  balance: Float!
   userId: String!
 }

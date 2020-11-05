@@ -1,12 +1,14 @@
 import { ObjectType, Field, ID } from 'type-graphql';
 import { prop as Property, plugin, getModelForClass } from '@typegoose/typegoose';
 import softDelete from '../utils/softDelete';
+import onSaveExtraFields from '../utils/contestantPlugin'
 import { Event } from './Event'
 import { Ref } from '../types';
 
 
 @ObjectType({ description: 'The Contestant model' })
 @plugin(softDelete())
+@plugin(onSaveExtraFields())
 export class Contestant {
     @Field(() => ID)
     id: string;

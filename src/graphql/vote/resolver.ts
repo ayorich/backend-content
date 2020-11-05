@@ -17,7 +17,7 @@ export class VoteResolver {
     }
 
     @Query(() => [Vote])
-    async returnVotesPerContestantForAnEvent(
+    async returnVotesPerContestantForAnEventDeprecated(
         @Arg('contestantId') contestantId: string,
         @Arg('eventId') eventId: string,
 

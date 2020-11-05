@@ -5,6 +5,11 @@ import { userRole } from './types';
 
 
 registerEnumType(userRole, { name: 'userRole' });
+
+
+
+
+
 @ObjectType({ description: 'The User Profile model' })
 @plugin(softDelete())
 export class User {
