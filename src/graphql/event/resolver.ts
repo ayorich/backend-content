@@ -18,11 +18,11 @@ export class EventResolver {
 
     @Mutation(() => Event)
     async createEvent(@Arg('data') data: EventInput): Promise<Event> {
-        const { name, description, duration, userId, imageUrl } = data;
+        const { eventTitle, description, startDate, closingDate, userId, imageUrl } = data;
         try {
 
             const eventCreated = await EventModel.create({
-                name, description, duration, userId, imageUrl
+                eventTitle, description, startDate, closingDate, userId, imageUrl
             });
 
             if (eventCreated) {

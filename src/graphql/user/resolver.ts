@@ -66,6 +66,7 @@ export class UserResolver {
 					.auth()
 					.setCustomUserClaims(uid, { role: role });
 				await user.updateOne({ role });
+				/**@todo to fix bug on not returning current user updated role */
 				return user;
 			}
 			throw new Error('User does not exist');

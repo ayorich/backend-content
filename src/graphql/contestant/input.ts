@@ -15,6 +15,9 @@ export class ContestantInput implements Partial<Contestant> {
     lastName: string;
 
     @Field()
+    email: string;
+
+    @Field()
     age: string;
 
     @Field()

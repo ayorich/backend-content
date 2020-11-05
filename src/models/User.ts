@@ -31,9 +31,10 @@ export class User {
 	@Property({ required: true, trim: true })
 	phoneNumber: string;
 
-	@Field()
+	@Field((_type) => userRole)
 	@Property({ required: false, default: userRole.USER })
-	role?: string;
+	role?: userRole;
+
 
 }
 export const UserModel = getModelForClass(User, {

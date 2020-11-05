@@ -20,6 +20,10 @@ export class Contestant {
     lastName: string;
 
     @Field()
+    @Property({ required: true, trim: true, unique: true })
+    email: string;
+
+    @Field()
     @Property({ required: true, trim: true })
     age: string;
 

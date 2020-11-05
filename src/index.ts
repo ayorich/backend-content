@@ -8,7 +8,8 @@ const PORT = process.env.PORT || 8360;
 
 const app: Server = express();
 app.get('/test', (_: Request, res: Response) => {
-	res.send('bootstrap Home');
+	res.redirect('https://contentplatform-9ae85.web.app/');
+
 });
 // const router = express.Router();
 graphQlServer(app).catch(err => console.log(err));

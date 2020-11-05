@@ -23,11 +23,11 @@ export class ContestantResolver {
 
     @Mutation(() => Contestant)
     async createContestant(@Arg('data') data: ContestantInput): Promise<Contestant> {
-        const { firstName, lastName, age, bio, eventId, imageUrl } = data;
+        const { firstName, lastName, age, bio, eventId, imageUrl, email } = data;
         try {
 
             const contestantCreated = await ContestantModel.create({
-                firstName, lastName, age, bio, eventId, imageUrl
+                firstName, lastName, age, bio, eventId, imageUrl, email
             });
 
             if (contestantCreated) {

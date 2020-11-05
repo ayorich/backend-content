@@ -8,7 +8,7 @@ export class EventInput implements Partial<Event> {
 
     @Field()
     @Length(3, 45)
-    name: string;
+    eventTitle: string;
 
     @Field()
     description: string;
@@ -16,8 +16,11 @@ export class EventInput implements Partial<Event> {
     @Field()
     imageUrl: string;
 
-    @Field()
-    duration: string;
+    @Field(() => Date)
+    startDate: Date;
+
+    @Field(() => Date)
+    closingDate: Date;
 
     @Field(() => String)
     userId: ObjectId;

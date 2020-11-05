@@ -13,7 +13,7 @@ export class Event {
 
     @Field()
     @Property()
-    name: string;
+    eventTitle: string;
 
     @Field()
     @Property()
@@ -23,9 +23,13 @@ export class Event {
     @Property()
     description: string;
 
-    @Field()
+    @Field(() => Date)
     @Property()
-    duration: string;
+    startDate: Date;
+
+    @Field(() => Date)
+    @Property()
+    closingDate: Date;
 
     @Field(() => User)
     @Property({ ref: User })

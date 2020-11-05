@@ -1,6 +1,10 @@
-import { InputType, Field } from 'type-graphql';
+import { InputType, Field, registerEnumType } from 'type-graphql';
 import { Length, IsEmail } from 'class-validator';
 import { User } from '../../models/User';
+import { userRole } from '../../models/types';
+
+
+registerEnumType(userRole, { name: 'userRole' });
 
 @InputType()
 export class UserProfileInput implements Partial<User> {
@@ -22,33 +26,21 @@ export class UserProfileInput implements Partial<User> {
 	@Field()
 	phoneNumber: string;
 
-	@Field({ nullable: true })
-	role?: string;
+	@Field((_type) => userRole, { nullable: true })
+	role?: userRole;
 
 
 }
-
-
 
 @InputType()
 export class RoleInput implements Partial<User> {
 	@Field()
 	uid: string;
 
-	@Field()
-	role: string;
+	@Field((_type) => userRole,)
+	role: userRole;
 }
 
 
 
-// registerEnumType(InvesteeActionType, {name: 'InvesteeActionType'});
-
-// @ArgsType()
-// export class MetaArgs {
-// 	@Field((_type) => String, { nullable: true, description: undefined })
-// 	info?: string | undefined;
-
-// 	@Field((_type) => InvesteeActionType, { nullable: true, description: undefined })
-// 	action?: InvesteeActionType;
-// }
 

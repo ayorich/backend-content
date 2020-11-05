@@ -25,6 +25,7 @@ input ContentInput {
 type Contestant {
   age: String!
   bio: String!
+  email: String!
   eventId: Event!
   firstName: String!
   id: ID!
@@ -35,27 +36,35 @@ type Contestant {
 input ContestantInput {
   age: String!
   bio: String!
+  email: String!
   eventId: String!
   firstName: String!
   imageUrl: String!
   lastName: String!
 }
 
+"""
+The javascript `Date` as string. Type represents date and time as the ISO Date string.
+"""
+scalar DateTime
+
 """The Event model"""
 type Event {
+  closingDate: DateTime!
   description: String!
-  duration: String!
+  eventTitle: String!
   id: ID!
   imageUrl: String!
-  name: String!
+  startDate: DateTime!
   userId: User!
 }
 
 input EventInput {
+  closingDate: DateTime!
   description: String!
-  duration: String!
+  eventTitle: String!
   imageUrl: String!
-  name: String!
+  startDate: DateTime!
   userId: String!
 }
 
@@ -86,7 +95,7 @@ type Query {
 }
 
 input RoleInput {
-  role: String!
+  role: userRole!
   uid: String!
 }
 
@@ -97,7 +106,7 @@ type User {
   id: ID!
   lastName: String!
   phoneNumber: String!
-  role: String!
+  role: userRole!
   uid: String!
 }
 
@@ -106,8 +115,14 @@ input UserProfileInput {
   firstName: String!
   lastName: String!
   phoneNumber: String!
-  role: String
+  role: userRole
   uid: String!
+}
+
+enum userRole {
+  ADMIN
+  EVENT_OWNER
+  USER
 }
 
 """The Vote model"""
