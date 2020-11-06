@@ -76,12 +76,14 @@ type Mutation {
   createVote(data: VoteInput!): Vote!
   createVoteCost(data: VoteCostInput!): VoteCost!
   createWallet(data: WalletInput!): Wallet!
+  initializePayment(input: TransactionInput!): Transaction!
   registerUser(input: UserProfileInput!): User!
   updateVoteCost(data: UpdateVoteCostInput!): VoteCost!
 }
 
 type Query {
   getAllTransactions: [Transaction!]!
+  getUserTransactions: [Transaction!]!
   returnAllContestant: [Contestant!]!
   returnAllEvent: [Event!]!
   returnAllUser: [User!]!
@@ -116,6 +118,13 @@ type Transaction {
   status: String!
   userID: String!
   vote: Float!
+  voteCostId: String!
+}
+
+input TransactionInput {
+  callback_url: String!
+  vote: Float!
+  voteCostId: String!
 }
 
 input UpdateVoteCostInput {

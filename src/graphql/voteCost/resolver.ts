@@ -12,7 +12,7 @@ export class VoteCostResolver {
     }
 
 
-    @Authorized('NO-MORE-ACCESS')
+    @Authorized('ADMIN')
     @Mutation(() => VoteCost)
     async createVoteCost(@Arg('data') { costPerVote }: VoteCostInput): Promise<VoteCost> {
         try {
@@ -29,7 +29,7 @@ export class VoteCostResolver {
     }
 
 
-
+    @Authorized('ADMIN')
     @Mutation(() => VoteCost)
     async updateVoteCost(
         @Arg('data') { costPerVote }: UpdateVoteCostInput
@@ -37,7 +37,6 @@ export class VoteCostResolver {
         try {
 
             const voteCost = await VoteCostModel.findOne();
-            console.log(voteCost)
 
             if (voteCost) {
 

@@ -1,5 +1,5 @@
-import adminConfig from './adminConfig';
-import getDbUrl from './connectionUrl';
+import adminConfig from './firebase/adminConfig';
+import getDbUrl from './mongoDB/connectionUrl';
 
 export default {
 	adminConfig,

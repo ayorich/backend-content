@@ -7,7 +7,7 @@ export class TransactionInput implements Partial<Transaction> {
     vote: number;
 
     @Field()
-    voteCostId: number;
+    voteCostId: string;
 
     @Field()
     callback_url: string;

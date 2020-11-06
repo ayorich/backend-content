@@ -34,6 +34,10 @@ export class Transaction {
 
     @Field()
     @Property({ required: true })
+    voteCostId: string;
+
+    @Field()
+    @Property({ required: true })
     amount: number;
 
     @Field()
