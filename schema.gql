@@ -74,16 +74,20 @@ type Mutation {
   createContestant(data: ContestantInput!): Contestant!
   createEvent(data: EventInput!): Event!
   createVote(data: VoteInput!): Vote!
+  createVoteCost(data: VoteCostInput!): VoteCost!
   createWallet(data: WalletInput!): Wallet!
   registerUser(input: UserProfileInput!): User!
+  updateVoteCost(data: UpdateVoteCostInput!): VoteCost!
 }
 
 type Query {
+  getAllTransactions: [Transaction!]!
   returnAllContestant: [Contestant!]!
   returnAllEvent: [Event!]!
   returnAllUser: [User!]!
   returnAllVote: [Vote!]!
   returnAllVoteByUser: [Vote!]!
+  returnAllVoteCost: [VoteCost!]!
   returnContentsPerContestantForAnEvent(contestantId: String!, eventId: String!): [Content!]!
   returnContestantForAnEvent(eventId: String!): [Contestant!]!
   returnSingleContent(id: String!): Content!
@@ -97,6 +101,25 @@ type Query {
 input RoleInput {
   role: userRole!
   uid: String!
+}
+
+"""The Transaction model"""
+type Transaction {
+  accessCode: String!
+  amount: Float!
+  date: DateTime!
+  direction: String!
+  email: String!
+  id: ID!
+  isSuccess: Boolean!
+  reference: String!
+  status: String!
+  userID: String!
+  vote: Float!
+}
+
+input UpdateVoteCostInput {
+  costPerVote: Float!
 }
 
 """The User Profile model"""
@@ -131,6 +154,16 @@ type Vote {
   id: ID!
   userId: String!
   vote: Int!
+}
+
+"""The Cost per Vote model"""
+type VoteCost {
+  costPerVote: Int!
+  id: ID!
+}
+
+input VoteCostInput {
+  costPerVote: Float!
 }
 
 input VoteInput {
