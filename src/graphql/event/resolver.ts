@@ -1,21 +1,24 @@
-import { Resolver, Arg, Query, Mutation } from 'type-graphql';
+import { Resolver, Arg, Query, Mutation, Authorized } from 'type-graphql';
 import { Event, EventModel } from '../../models/Event';
 
 import { EventInput } from './input';
 
 @Resolver()
 export class EventResolver {
+    @Authorized()
     @Query(() => Event, { nullable: false })
     async returnSingleEvent(@Arg('id') id: string) {
         return await EventModel.findById(id).populate('userId');
     }
 
+    @Authorized()
     @Query(() => [Event])
     async returnAllEvent(): Promise<Event[]> {
         return await EventModel.find();
     }
 
 
+    @Authorized('ADMIN')
     @Mutation(() => Event)
     async createEvent(@Arg('data') data: EventInput): Promise<Event> {
         const { eventTitle, description, startDate, closingDate, userId, imageUrl } = data;
@@ -25,11 +28,8 @@ export class EventResolver {
                 eventTitle, description, startDate, closingDate, userId, imageUrl
             });
 
-            if (eventCreated) {
-                return eventCreated;
-            }
+            return eventCreated;
 
-            throw new Error('Event not created');
         } catch (error) {
             throw new Error(error);
         }

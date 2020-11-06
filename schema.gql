@@ -90,7 +90,7 @@ type Query {
   returnSingleContestant(id: String!): Contestant!
   returnSingleEvent(id: String!): Event!
   returnSingleUser(uid: String!): User!
-  returnUserWallet(userId: String!): Wallet!
+  returnUserWallet: Wallet!
   returnVotesPerContestantForAnEventDeprecated(contestantId: String!, eventId: String!): [Vote!]!
 }
 
@@ -144,7 +144,7 @@ input VoteInput {
 type Wallet {
   balance: Int!
   id: ID!
-  userId: User!
+  userId: String!
 }
 
 input WalletInput {

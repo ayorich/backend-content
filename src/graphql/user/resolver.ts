@@ -1,4 +1,4 @@
-import { Resolver, Arg, Query, Mutation } from 'type-graphql';
+import { Resolver, Arg, Query, Mutation, Authorized } from 'type-graphql';
 import { User, UserModel } from '../../models/User';
 import { WalletModel } from '../../models/Wallet';
 import { RoleInput, UserProfileInput } from './input';
@@ -15,6 +15,7 @@ export class UserResolver {
 		return await UserModel.findOne({ uid });
 	}
 
+	@Authorized('ADMIN')
 	@Query(() => [User])
 	async returnAllUser(): Promise<User[]> {
 		return await UserModel.find();
@@ -39,8 +40,10 @@ export class UserResolver {
 				.setCustomUserClaims(uid, { role: userRole.USER });
 
 			await WalletModel.create({
-				userId: userCreated.id
+				userId: uid
 			});
+
+
 
 
 			return userCreated;
@@ -52,6 +55,7 @@ export class UserResolver {
 
 
 
+	@Authorized('ADMIN')
 	@Mutation(() => User)
 	async assignRole(@Arg('data') { uid, role }: RoleInput): Promise<User> {
 		try {
@@ -60,7 +64,8 @@ export class UserResolver {
 			if (user) {
 				await firebase.admin
 					.auth()
-					.setCustomUserClaims(uid, { role: role });
+					.setCustomUserClaims(uid, { role });
+
 				await user.updateOne({ role });
 				/**@todo to fix bug on not returning current user updated role */
 				return user;

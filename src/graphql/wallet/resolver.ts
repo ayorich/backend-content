@@ -1,17 +1,22 @@
-import { Resolver, Arg, Query, Mutation } from 'type-graphql';
+import { Resolver, Arg, Query, Mutation, Authorized, Ctx } from 'type-graphql';
 import { Wallet, WalletModel } from '../../models/Wallet';
 
 import { WalletInput } from './input';
+import utils from '../../utils';
+const { firebase } = utils;
 
 @Resolver()
 export class WalletResolver {
 
+    @Authorized()
     @Query(() => Wallet, { nullable: false })
-    async returnUserWallet(@Arg('userId') userId: string) {
-        return await WalletModel.findOne({ userId });
+    async returnUserWallet(@Ctx('token') token: string) {
+        const { uid } = await firebase.admin.auth().verifyIdToken(token);
+        return await WalletModel.findOne({ userId: uid.trim() });
     }
 
 
+    @Authorized()
     @Mutation(() => Wallet)
     async createWallet(@Arg('data') data: WalletInput): Promise<Wallet> {
         const { userId } = data;

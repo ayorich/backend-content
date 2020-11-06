@@ -1,15 +1,18 @@
-import { Resolver, Arg, Query, Mutation } from 'type-graphql';
+import { Resolver, Arg, Query, Mutation, Authorized } from 'type-graphql';
 import { Content, ContentModel } from '../../models/Content';
 
 import { ContentInput } from './input';
 
 @Resolver()
 export class ContentResolver {
+
+    @Authorized()
     @Query(() => Content, { nullable: false })
     async returnSingleContent(@Arg('id') id: string) {
         return await ContentModel.findById(id);
     }
 
+    @Authorized()
     @Query(() => [Content])
     async returnContentsPerContestantForAnEvent(
         @Arg('contestantId') contestantId: string,
@@ -22,7 +25,7 @@ export class ContentResolver {
 
 
 
-
+    @Authorized('ADMIN')
     @Mutation(() => Content)
     async createContent(@Arg('data') data: ContentInput): Promise<Content> {
         const { url, mediaType, contestantId, eventId, title } = data;
@@ -32,11 +35,8 @@ export class ContentResolver {
                 url, mediaType, contestantId, eventId, title
             });
 
-            if (contentCreated) {
-                return contentCreated;
-            }
+            return contentCreated;
 
-            throw new Error('Content not created');
         } catch (error) {
             throw new Error(error);
         }

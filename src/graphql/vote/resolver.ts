@@ -1,4 +1,4 @@
-import { Resolver, Arg, Query, Mutation } from 'type-graphql';
+import { Resolver, Arg, Query, Mutation, Authorized } from 'type-graphql';
 import { Vote, VoteModel } from '../../models/Vote';
 
 import { VoteInput } from './input';
@@ -6,15 +6,18 @@ import { VoteInput } from './input';
 @Resolver()
 export class VoteResolver {
 
+    @Authorized('ADMIN')
     @Query(() => [Vote])
     async returnAllVote(): Promise<Vote[]> {
         return await VoteModel.find();
     }
 
+    @Authorized()
     @Query(() => [Vote])
     async returnAllVoteByUser(@Arg('userId') userId: string): Promise<Vote[]> {
         return await VoteModel.find({ userId });
     }
+
 
     @Query(() => [Vote])
     async returnVotesPerContestantForAnEventDeprecated(
@@ -29,6 +32,7 @@ export class VoteResolver {
 
 
 
+    @Authorized()
     @Mutation(() => Vote)
     async createVote(@Arg('data') data: VoteInput): Promise<Vote> {
         const { vote, contestantId, userId, eventId } = data;
@@ -38,11 +42,8 @@ export class VoteResolver {
                 contestantId, userId, vote, eventId
             });
 
-            if (voteCreated) {
-                return voteCreated;
-            }
+            return voteCreated;
 
-            throw new Error('Vote not created');
         } catch (error) {
             throw new Error(error);
         }

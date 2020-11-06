@@ -26,7 +26,7 @@ import { Ref } from '../types';
         }
 
     ]);
-    console.log(stats)
+    // console.log(stats)
     if (stats.length > 0) {
         await ContestantModel.findByIdAndUpdate(stats[0]._id, {
             nUserWhoVoted: stats[0].nUser,

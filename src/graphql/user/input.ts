@@ -26,6 +26,7 @@ export class UserProfileInput implements Partial<User> {
 	@Field()
 	phoneNumber: string;
 
+
 }
 
 @InputType()
