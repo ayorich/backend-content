@@ -1,7 +1,10 @@
-import { Resolver, Arg, Query, Mutation, Authorized } from 'type-graphql';
+import { Resolver, Arg, Query, Mutation, Authorized, Ctx } from 'type-graphql';
 import { Vote, VoteModel } from '../../models/Vote';
 
 import { VoteInput } from './input';
+import utils from '../../utils';
+import { WalletModel } from '../../models/Wallet';
+const { firebase } = utils;
 
 @Resolver()
 export class VoteResolver {
@@ -14,8 +17,10 @@ export class VoteResolver {
 
     @Authorized()
     @Query(() => [Vote])
-    async returnAllVoteByUser(@Arg('userId') userId: string): Promise<Vote[]> {
-        return await VoteModel.find({ userId });
+    async returnAllVoteByUser(@Ctx('token') token: string): Promise<Vote[]> {
+        const { uid } = await firebase.admin.auth().verifyIdToken(token);
+
+        return await VoteModel.find({ userId: uid });
     }
 
 
@@ -34,15 +39,33 @@ export class VoteResolver {
 
     @Authorized()
     @Mutation(() => Vote)
-    async createVote(@Arg('data') data: VoteInput): Promise<Vote> {
-        const { vote, contestantId, userId, eventId } = data;
+    async createVote(@Arg('data') data: VoteInput, @Ctx('token') token: string): Promise<Vote> {
+        const { uid } = await firebase.admin.auth().verifyIdToken(token);
+        const { vote, contestantId, eventId } = data;
+
         try {
+            const wallet = await WalletModel.findOne({ userId: uid });
+            if (wallet) {
+                const { balance } = wallet
+                if (balance) {
+                    if (vote <= balance) {
 
-            const voteCreated = await VoteModel.create({
-                contestantId, userId, vote, eventId
-            });
+                        const newBal = balance - vote
+                        await wallet.updateOne({ balance: newBal })
+                        const voteCreated = await VoteModel.create({
+                            contestantId, userId: uid, vote, eventId
+                        });
 
-            return voteCreated;
+                        return voteCreated;
+                    }
+                    throw new Error('Not enough credit avaliable');
+                }
+
+                throw new Error('no avaliable balance');
+
+            }
+            throw new Error('No wallet for this user');
+
 
         } catch (error) {
             throw new Error(error);

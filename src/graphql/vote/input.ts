@@ -9,9 +9,6 @@ export class VoteInput implements Partial<Vote> {
     vote: number;
 
     @Field(() => String)
-    userId: ObjectId;
-
-    @Field(() => String)
     eventId: ObjectId;
 
     @Field(() => String)

@@ -1,7 +1,6 @@
 import { ObjectType, Field, ID, Int } from 'type-graphql';
 import { prop as Property, plugin, getModelForClass, post } from '@typegoose/typegoose';
 import softDelete from '../utils/softDelete';
-import { User } from './User'
 import { Contestant, ContestantModel } from './Contestant'
 import { Event } from './Event'
 
@@ -61,9 +60,9 @@ export class Vote {
     @Property({ ref: Event })
     eventId: Ref<Event>;
 
-    @Field(() => User)
-    @Property({ ref: User })
-    userId: Ref<User>;
+    @Field()
+    @Property({ required: false, trim: true })
+    userId: string;
 }
 export const VoteModel = getModelForClass(Vote, {
     schemaOptions: { timestamps: true },

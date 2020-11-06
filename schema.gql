@@ -83,7 +83,7 @@ type Query {
   returnAllEvent: [Event!]!
   returnAllUser: [User!]!
   returnAllVote: [Vote!]!
-  returnAllVoteByUser(userId: String!): [Vote!]!
+  returnAllVoteByUser: [Vote!]!
   returnContentsPerContestantForAnEvent(contestantId: String!, eventId: String!): [Content!]!
   returnContestantForAnEvent(eventId: String!): [Contestant!]!
   returnSingleContent(id: String!): Content!
@@ -129,14 +129,13 @@ type Vote {
   contestantId: Contestant!
   eventId: Event!
   id: ID!
-  userId: User!
+  userId: String!
   vote: Int!
 }
 
 input VoteInput {
   contestantId: String!
   eventId: String!
-  userId: String!
   vote: Float!
 }
 
