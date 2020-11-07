@@ -4,6 +4,7 @@ import { Vote, VoteModel } from '../../models/Vote';
 import { VoteInput } from './input';
 import utils from '../../utils';
 import { WalletModel } from '../../models/Wallet';
+import { userModelUidQuery } from '../../utils/userModelUidQuery';
 const { firebase } = utils;
 
 @Resolver()
@@ -19,8 +20,10 @@ export class VoteResolver {
     @Query(() => [Vote])
     async returnAllVoteByUser(@Ctx('token') token: string): Promise<Vote[]> {
         const { uid } = await firebase.admin.auth().verifyIdToken(token);
+        const user = await userModelUidQuery(uid)
 
-        return await VoteModel.find({ userId: uid });
+
+        return await VoteModel.find({ userId: user._id });
     }
 
 
@@ -36,15 +39,16 @@ export class VoteResolver {
 
 
 
-
     @Authorized()
     @Mutation(() => Vote)
     async createVote(@Arg('data') data: VoteInput, @Ctx('token') token: string): Promise<Vote> {
         const { uid } = await firebase.admin.auth().verifyIdToken(token);
+        const user = await userModelUidQuery(uid)
+
         const { vote, contestantId, eventId } = data;
 
         try {
-            const wallet = await WalletModel.findOne({ userId: uid });
+            const wallet = await WalletModel.findOne({ userId: user._id });
             if (wallet) {
                 const { balance } = wallet
                 if (balance) {
@@ -53,7 +57,7 @@ export class VoteResolver {
                         const newBal = balance - vote
                         await wallet.updateOne({ balance: newBal })
                         const voteCreated = await VoteModel.create({
-                            contestantId, userId: uid, vote, eventId
+                            contestantId, userId: user._id, vote, eventId
                         });
 
                         return voteCreated;

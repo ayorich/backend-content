@@ -3,7 +3,11 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
-"""The Content model"""
+input ConfirmInput {
+  reference: String!
+}
+
+# The Content model
 type Content {
   contestantId: Contestant!
   eventId: Event!
@@ -21,7 +25,7 @@ input ContentInput {
   url: String!
 }
 
-"""The Contestant model"""
+# The Contestant model
 type Contestant {
   age: String!
   bio: String!
@@ -43,12 +47,10 @@ input ContestantInput {
   lastName: String!
 }
 
-"""
-The javascript `Date` as string. Type represents date and time as the ISO Date string.
-"""
+# The javascript `Date` as string. Type represents date and time as the ISO Date string.
 scalar DateTime
 
-"""The Event model"""
+# The Event model
 type Event {
   closingDate: DateTime!
   description: String!
@@ -79,6 +81,7 @@ type Mutation {
   initializePayment(input: TransactionInput!): Transaction!
   registerUser(input: UserProfileInput!): User!
   updateVoteCost(data: UpdateVoteCostInput!): VoteCost!
+  verifyPayment(input: ConfirmInput!): Transaction!
 }
 
 type Query {
@@ -105,7 +108,7 @@ input RoleInput {
   uid: String!
 }
 
-"""The Transaction model"""
+# The Transaction model
 type Transaction {
   accessCode: String!
   amount: Float!
@@ -116,7 +119,7 @@ type Transaction {
   isSuccess: Boolean!
   reference: String!
   status: String!
-  userID: String!
+  userId: User!
   vote: Float!
   voteCostId: String!
 }
@@ -131,7 +134,7 @@ input UpdateVoteCostInput {
   costPerVote: Float!
 }
 
-"""The User Profile model"""
+# The User Profile model
 type User {
   email: String!
   firstName: String!
@@ -156,16 +159,16 @@ enum userRole {
   USER
 }
 
-"""The Vote model"""
+# The Vote model
 type Vote {
   contestantId: Contestant!
   eventId: Event!
   id: ID!
-  userId: String!
+  userId: User!
   vote: Int!
 }
 
-"""The Cost per Vote model"""
+# The Cost per Vote model
 type VoteCost {
   costPerVote: Int!
   id: ID!
@@ -181,11 +184,11 @@ input VoteInput {
   vote: Float!
 }
 
-"""The Wallet model"""
+# The Wallet model
 type Wallet {
   balance: Int!
   id: ID!
-  userId: String!
+  userId: User!
 }
 
 input WalletInput {

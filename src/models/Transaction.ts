@@ -1,5 +1,6 @@
 import { ObjectType, Field, ID } from 'type-graphql';
-import { prop as Property, getModelForClass } from '@typegoose/typegoose';
+import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
+import { User } from './User';
 
 export enum PaymentDirection {
     INCOMING_PAYMENT = 'INCOMING_PAYMENT',
@@ -28,9 +29,9 @@ export class Transaction {
     @Property({ required: true, trim: true })
     email: string;
 
-    @Field()
-    @Property({ required: true })
-    userID: string;
+    @Field(() => User)
+    @Property({ ref: User })
+    userId: Ref<User>;
 
     @Field()
     @Property({ required: true })

@@ -5,6 +5,7 @@ import { Contestant, ContestantModel } from './Contestant'
 import { Event } from './Event'
 
 import { Ref } from '../types';
+import { User } from './User';
 
 
 @post<Vote>('save', async function (vote) {
@@ -60,9 +61,9 @@ export class Vote {
     @Property({ ref: Event })
     eventId: Ref<Event>;
 
-    @Field()
-    @Property({ required: false, trim: true })
-    userId: string;
+    @Field(() => User)
+    @Property({ ref: User })
+    userId: Ref<User>;
 }
 export const VoteModel = getModelForClass(Vote, {
     schemaOptions: { timestamps: true },

@@ -1,6 +1,7 @@
 import { ObjectType, Field, ID, Int } from 'type-graphql';
-import { prop as Property, plugin, getModelForClass } from '@typegoose/typegoose';
+import { prop as Property, plugin, getModelForClass, Ref } from '@typegoose/typegoose';
 import softDelete from '../utils/softDelete';
+import { User } from './User';
 
 
 @ObjectType({ description: 'The Wallet model' })
@@ -13,9 +14,9 @@ export class Wallet {
     @Property({ default: 0 })
     balance?: number;
 
-    @Field()
-    @Property({ required: false, trim: true })
-    userId: string;
+    @Field(() => User)
+    @Property({ ref: User })
+    userId: Ref<User>;
 }
 export const WalletModel = getModelForClass(Wallet, {
     schemaOptions: { timestamps: true },

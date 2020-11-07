@@ -1,17 +1,17 @@
 import { Resolver, Mutation, Arg, Authorized, Ctx, Query } from 'type-graphql';
-import { initPayment } from '../../config/paystack';
-// import moment from 'moment';
-// import { InvestmentModel } from '../../models/Investment';
+import { initPayment, verifyPayment } from '../../config/paystack';
 import { UserInputError, ForbiddenError } from 'apollo-server-express';
 import {
     Transaction,
     TransactionModel,
     PaymentDirection,
-    // paymentStatus,
+    paymentStatus,
 } from '../../models/Transaction';
 import { VoteCostModel } from '../../models/VoteCost';
-import { TransactionInput } from './input';
+import { ConfirmInput, TransactionInput } from './input';
 import utils from '../../utils';
+import { WalletModel } from '../../models/Wallet';
+import { userModelUidQuery } from '../../utils/userModelUidQuery';
 const { firebase } = utils;
 
 Authorized();
@@ -22,118 +22,116 @@ export class TransactionResolver {
         @Arg('input') { vote, voteCostId, callback_url }: TransactionInput,
         @Ctx('token') token: string
     ) {
-        const { uid, email } = await firebase.admin.auth().verifyIdToken(token);
-        if (!email) throw new Error('No email attached to this account');
 
-        // get proper amount
-        const voteCost = await VoteCostModel.findById(voteCostId);
-        if (!voteCost) throw new UserInputError('No vote per cost with the given id');
+        try {
 
-        console.log(vote)
-        console.log(voteCost)
-        console.log(voteCost.costPerVote)
-        const amount = vote * voteCost.costPerVote * 100;
 
-        const newTransaction = await TransactionModel.create({
-            email,
-            userID: uid,
-            voteCostId,
-            amount,
-            direction: PaymentDirection.OUTGOINGPAYMENT,
-            vote,
-        });
+            const { uid, email } = await firebase.admin.auth().verifyIdToken(token);
+            if (!email) throw new Error('No email attached to this account');
 
-        const { success, data: initInfo } = await initPayment({
-            amount: amount,
-            email: email,
-            callback_url,
-            metadata: { recordID: newTransaction._id },
-        });
-        if (!success) throw new ForbiddenError('Could not initialize pament');
+            const user = await userModelUidQuery(uid)
 
-        const payload = await TransactionModel.findOneAndUpdate(
-            { _id: newTransaction._id },
-            {
-                reference: initInfo.data.reference,
-                accessCode: initInfo.data.access_code,
-            },
-            { new: true }
-        );
-        return payload;
+            // get proper amount
+            const voteCost = await VoteCostModel.findById(voteCostId);
+            if (!voteCost) throw new UserInputError('No vote per cost with the given id');
+
+            const amount = vote * voteCost.costPerVote * 100;
+
+            const newTransaction = await TransactionModel.create({
+                email,
+                userId: user._id,
+                voteCostId,
+                amount,
+                direction: PaymentDirection.OUTGOINGPAYMENT,
+                vote,
+            });
+
+            const { success, data: initInfo } = await initPayment({
+                amount: amount,
+                email: email,
+                callback_url,
+                metadata: { recordID: newTransaction._id },
+            });
+            if (!success) throw new ForbiddenError('Could not initialize payment');
+
+            const payload = await TransactionModel.findOneAndUpdate(
+                { _id: newTransaction._id },
+                {
+                    reference: initInfo.data.reference,
+                    accessCode: initInfo.data.access_code,
+                },
+                { new: true }
+            );
+            return payload;
+        } catch (error) {
+            throw new Error(error);
+
+        }
     }
 
 
 
-    // @Mutation(() => Transaction)
-    // async verifyPayment(
-    //     @Arg('input') { reference }: ConfirmInput,
-    //     @Ctx('token') token: string
-    // ) {
-    //     const { uid } = await firebase.admin.auth().verifyIdToken(token);
-    //     const res = await verifyPayment(reference);
-    //     if (!res.success) {
-    //         throw new UserInputError('Transaction Reference not found');
-    //     }
-    //     const {
-    //         data: {
-    //             data: {
-    //                 metadata: { recordID },
-    //             },
-    //         },
-    //     } = res;
-    //     const record = await TransactionModel.findOne({
-    //         userID: uid,
-    //         reference,
-    //         _id: recordID,
-    //     });
-    //     if (!record) {
-    //         throw new ForbiddenError('Could not find payment record');
-    //     }
-    //     const { status, units, amount } = record;
+    @Mutation(() => Transaction)
+    async verifyPayment(
+        @Arg('input') { reference }: ConfirmInput,
+        @Ctx('token') token: string
+    ) {
+        const { uid } = await firebase.admin.auth().verifyIdToken(token);
 
-    //     // this payment might have been confirmed before
-    //     if (status === paymentStatus.COMPELTE) {
-    //         return record;
-    //     }
+        const user = await userModelUidQuery(uid)
 
-    //     const investedProject = await ProjectModel.findById(record.projectID);
-    //     if (!investedProject) {
-    //         throw new Error('Could not find invested project');
-    //     }
-    //     // create an investment for this user
-    //     const { id, roi, maturity } = investedProject;
-    //     const dueDate = moment().add(maturity, 'months').format();
-    //     const expectedIncome = (roi / 100) * amount + amount;
+        const res = await verifyPayment(reference);
+        // console.log(res)
 
-    //     const newInvestment = {
-    //         currentIncome: 0,
-    //         expectedIncome,
-    //         projectId: id,
-    //         units,
-    //         userId: uid,
-    //         dueDate,
-    //     };
+        if (!res.success) {
+            throw new UserInputError('Transaction Reference not found');
+        }
+        const {
+            data: {
+                data: {
+                    metadata: { recordID },
+                },
+            },
+        } = res;
+        const record = await TransactionModel.findOne({
+            userId: user._id,
+            reference,
+            _id: recordID,
+        });
+        if (!record) {
+            throw new ForbiddenError('Could not find payment record');
+        }
+        const { status, vote } = record;
 
-    //     await InvestmentModel.create(newInvestment);
-    //     // reduce the projectAvialable unit
-    //     await ProjectModel.findOneAndUpdate(
-    //         { _id: record.projectID },
-    //         { availableUnits: investedProject.availableUnits - record.units }
-    //     );
+        // this payment might have been confirmed before
+        if (status === paymentStatus.COMPELTE) {
+            return record;
+        }
+        //updating wallet votes
+        const wallet = await WalletModel.findOne({ userId: user._id });
+        if (wallet) {
+            const { balance } = wallet
 
-    //     // update the record
-    //     const newRecord = await TransactionModel.findOneAndUpdate(
-    //         { _id: record._id },
-    //         { status: paymentStatus.COMPELTE, isSuccess: true },
-    //         { new: true }
-    //     );
-    //     return newRecord;
-    // }
+            const newBal = balance! + vote
+            await wallet.updateOne({ balance: newBal })
+
+        }
+
+        // update the record
+        const newRecord = await TransactionModel.findOneAndUpdate(
+            { _id: record._id },
+            { status: paymentStatus.COMPELTE, isSuccess: true },
+            { new: true }
+        );
+        return newRecord;
+    }
 
     @Query(() => [Transaction])
     async getUserTransactions(@Ctx('token') token: string) {
         const { uid } = await firebase.admin.auth().verifyIdToken(token);
-        const transactions = await TransactionModel.find({ userID: uid });
+        const user = await userModelUidQuery(uid)
+
+        const transactions = await TransactionModel.find({ userId: user._id });
         return transactions;
     }
 

@@ -8,6 +8,7 @@ import 'reflect-metadata';
 // resolvers
 import resolvers from './graphql';
 import utils from './utils';
+import { join } from 'path';
 const { firebase } = utils;
 
 const graphQlServer = async (app: any) => {
@@ -15,9 +16,12 @@ const graphQlServer = async (app: any) => {
 	const schema = await buildSchema({
 		resolvers,
 		validate: false,
-		emitSchemaFile: true,
-		authChecker: async ({ context: { req } }, role) => {
-			const token = req.headers.authorization;
+		// emitSchemaFile: true,
+		emitSchemaFile: {
+			path: join(process.cwd(), "src/schema.gql"),
+			commentDescriptions: true,
+		},
+		authChecker: async ({ context: { token } }, role) => {
 			const verify = await firebase.admin.auth().verifyIdToken(token);
 			if (verify) {
 				if (role.length > 0) {

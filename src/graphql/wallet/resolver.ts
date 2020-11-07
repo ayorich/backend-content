@@ -3,6 +3,7 @@ import { Wallet, WalletModel } from '../../models/Wallet';
 
 import { WalletInput } from './input';
 import utils from '../../utils';
+import { userModelUidQuery } from '../../utils/userModelUidQuery';
 const { firebase } = utils;
 
 @Resolver()
@@ -12,7 +13,9 @@ export class WalletResolver {
     @Query(() => Wallet, { nullable: false })
     async returnUserWallet(@Ctx('token') token: string) {
         const { uid } = await firebase.admin.auth().verifyIdToken(token);
-        return await WalletModel.findOne({ userId: uid.trim() });
+        const user = await userModelUidQuery(uid)
+
+        return await WalletModel.findOne({ userId: user._id });
     }
 
 

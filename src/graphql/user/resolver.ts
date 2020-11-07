@@ -4,6 +4,7 @@ import { WalletModel } from '../../models/Wallet';
 import { RoleInput, UserProfileInput } from './input';
 import { userRole } from '../../models/types';
 import utils from '../../utils';
+import { userModelUidQuery } from '../../utils/userModelUidQuery';
 // import { mongoose } from '@typegoose/typegoose';
 
 const { firebase } = utils;
@@ -39,8 +40,10 @@ export class UserResolver {
 				.auth()
 				.setCustomUserClaims(uid, { role: userRole.USER });
 
+			const user = await userModelUidQuery(uid)
+
 			await WalletModel.create({
-				userId: uid
+				userId: user._id
 			});
 
 
