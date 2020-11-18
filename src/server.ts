@@ -2,7 +2,7 @@ import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
 import { connect } from 'mongoose';
 import config from './config';
-
+import http from 'http';
 import 'reflect-metadata';
 
 // resolvers
@@ -18,7 +18,7 @@ const graphQlServer = async (app: any) => {
 		validate: false,
 		// emitSchemaFile: true,
 		emitSchemaFile: {
-			path: join(process.cwd(), "src/schema.gql"),
+			path: join(process.cwd(), 'src/schema.gql'),
 			commentDescriptions: true,
 		},
 		authChecker: async ({ context: { token } }, role) => {
@@ -37,10 +37,8 @@ const graphQlServer = async (app: any) => {
 		},
 	});
 
-
 	// create mongoose connection
 	const mongoose = await connect(config.getDbUrl(), {
-
 		useNewUrlParser: true,
 		useUnifiedTopology: true,
 		useCreateIndex: true,
@@ -49,14 +47,36 @@ const graphQlServer = async (app: any) => {
 	await mongoose.connection;
 
 	const server = new ApolloServer({
-		context: async ({ req, res }) => {
-			const token = req.headers.authorization || null;
-			return { req, res, token };
+		context: async ({ req, res, connection }) => {
+			if (connection) {
+				const token = connection.context['authorization'];
+				return { req, res, token };
+			} else {
+				const token = req.headers.authorization || null;
+				return { req, res, token };
+			}
+		},
+
+		subscriptions: {
+			onConnect: async (connectionParams, _webSocket, _context: any) => {
+				// const { authorization: token } = connectionParams;
+				console.log(
+					`Subscription client connected using Apollo server's built-in SubscriptionServer.`
+				);
+				return connectionParams;
+			},
+			onDisconnect: async (_webSocket, _context) => {
+				console.log(`Subscription client disconnected.`);
+			},
 		},
 		schema,
 		introspection: true,
 		playground: true,
 	});
 	server.applyMiddleware({ app, cors: true, path: '/' });
+	const httpServer = http.createServer(app);
+	server.installSubscriptionHandlers(httpServer);
+
+	return { httpServer, server };
 };
 export default graphQlServer;

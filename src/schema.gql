@@ -35,6 +35,8 @@ type Contestant {
   id: ID!
   imageUrl: String!
   lastName: String!
+  nUserWhoVoted: Int!
+  totalVote: Int!
 }
 
 input ContestantInput {
@@ -106,6 +108,10 @@ type Query {
 input RoleInput {
   role: userRole!
   uid: String!
+}
+
+type Subscription {
+  subscribeToContestant: [Contestant!]!
 }
 
 # The Transaction model
